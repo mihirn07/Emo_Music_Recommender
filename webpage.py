@@ -61,10 +61,17 @@ nav = st.sidebar.radio('Navigation', ['Home', 'Recommender', 'Music List', 'Abou
 if nav =='Home':
 	st.title('Emotion Based Music Recommender')
 	st.image('front.jpg')
-	st.text('Music is the language of all')
+	st.write('Where words leave off, music begins')
+	st.write('Please click top left icon on the screen to access the sidebar for navigation')
+	st.text('This model:- ')
+	st.text('* Takes input as an image')
+	st.text('* Applies Opencv based Haarcascades Clasifier for facial detection')
+	st.text('* Resizes & Recolours the image which is then taken as an input in a CNN Model which does emotion classification')
+	st.text('* Recommends music similar to the emotion from the music list (can be accessed on the Music List Page)')
+
 
 if nav =='Recommender':
-	st.title('Recommender')
+	st.header('Recommender')
 	file = st.file_uploader("Please upload an image file", type=["jpg", "png", "jpeg"])
 	# Load the cascade
 	face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -75,43 +82,51 @@ if nav =='Recommender':
 		    # Detect the faces
 		faces = face_cascade.detectMultiScale(gray, scaleFactor = 1.2, minNeighbors = 2)
 		    # Draw the rectangle around each face
-		st.image(image)    
-		for (x, y, w, h) in faces:
-		     face = image[y:y + h, x:x + w]
+		st.image(image) 
+		if (faces.size == 0):
+			st.write('No face detected :(')
+		else:
+			st.write('Face detected!')	   
+			for (x, y, w, h) in faces:
+			     face = image[y:y + h, x:x + w]
+			     cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
+			st.image(image)     	
+			gray_face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+			st.image(gray_face)
+			def rescale_frame(frame):
+		   		dim = (48, 48)
+		   		return cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+	   	
+		
+			rez_gray_face = rescale_frame(gray_face)
+			test_img = torch.tensor(rez_gray_face).reshape((1,1,48,48))/255
+			with torch.no_grad():
+		         preds = model(test_img)
 
-		gray_face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
-		st.image(gray_face)
-		def rescale_frame(frame):
-	   		dim = (48, 48)
-	   		return cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
-
-		rez_gray_face = rescale_frame(gray_face)
-
-		test_img = torch.tensor(rez_gray_face).reshape((1,1,48,48))/255
-		with torch.no_grad():
-	         preds = model(test_img)
-
-		st.markdown(preds.tolist())
-		final = np.argmax(preds.tolist(), axis = 1)
-		final = final[0]
-		emotions = {0:'Angry', 1:'Disgusted', 2:'Afraid', 3:'Happy', 4:'Sad', 5:'Surprised', 6:'Neutral'}
-		st.write('You are {:>2}% {:}'.format((preds.tolist())[0][final]*100, emotions[final]))
-		emo = emotions[final]
-		music = pd.read_excel('music.xlsx')
-		recom = music[music['Emotion'] == emo]
-		recom = recom.reset_index()
-		ind = random.randint(0,9)
-		st.write('\nNow Playing :', recom.iloc[[ind]]['Title'][ind])
-		link = recom.iloc[[ind]]['Link'][ind]
-		st.video(link) 
+			st.write('The Emotion Array')
+			st.markdown(preds.tolist())
+			final = np.argmax(preds.tolist(), axis = 1)
+			final = final[0]
+			emotions = {0:'Angry', 1:'Disgusted', 2:'Afraid', 3:'Happy', 4:'Sad', 5:'Surprised', 6:'Neutral'}
+			st.write('You are {:.2f}% {:}'.format((preds.tolist())[0][final]*100, emotions[final]))
+			emo = emotions[final]
+			music = pd.read_excel('music.xlsx')
+			recom = music[music['Emotion'] == emo]
+			recom = recom.reset_index()
+			ind = random.randint(0,9)
+			st.write('\nNow Playing :', recom.iloc[[ind]]['Title'][ind])
+			link = recom.iloc[[ind]]['Link'][ind]
+			st.video(link) 
 	except:
-		st.write('No Face Detected / Waiting for File')	
+		st.write('Waiting for File')	
 
 if nav == 'Music List':
-	st.title('Entire Music List')
+	st.header('Entire Music List')
 	music_all= pd.read_excel('music.xlsx')
 	st.dataframe(data = music_all)
 
 if nav == 'About Me':
-	st.write('This project is created by Mihir Nandawat \n Student of IIT Bombay')
+	st.write('This project is created by:')
+	st.write('Mihir Nandawat')
+	st.write('IIT Bombay')
 
