@@ -6,6 +6,7 @@ import os
 import torch
 import cv2
 import random
+import time
 
 
 path = 'saved_weights_emotions.pt'
@@ -58,6 +59,11 @@ for params in model.parameters():
 
 nav = st.sidebar.radio('Navigation', ['Home', 'Recommender', 'Music List', 'About Me'])
 
+def countdown(t):
+    while t:
+        time.sleep(1)
+        t -= 1
+
 if nav =='Home':
 	st.title('Emotion Based Music Recommender')
 	st.image('front.jpg')
@@ -72,9 +78,25 @@ if nav =='Home':
 
 if nav =='Recommender':
 	st.header('Recommender')
-	file = st.file_uploader("Please upload an image file", type=["jpg", "png", "jpeg"])
+	upload = st.checkbox("Upload an Image")
+	sample = st.checkbox('Select from Sample Images')
+	if upload:
+			file = st.file_uploader("Please upload an image file", type=["jpg", "png", "jpeg"])
+	
+	if sample:
+			def file_selector(folder_path='/sample_img'):
+		    		filenames = os.listdir(folder_path)
+		    		selected_filename = st.selectbox('Select a file', filenames)
+		    		return os.path.join(folder_path, selected_filename)
+
+
+			if __name__ == '__main__':
+		        		folder_path = '.\sample_img'
+		        		file = file_selector(folder_path=folder_path)
+		        		st.write('You selected `%s`' % file)
 	# Load the cascade
 	face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 	try:
 		from PIL import Image
 		image = np.asarray(Image.open(file))
