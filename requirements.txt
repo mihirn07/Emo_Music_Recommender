@@ -1,6 +1,6 @@
 streamlit==0.84.0
 numpy
-python==3.8.8
-pandas==1.0.2
+python
+pandas
 opencv-contrib-python==4.5.2.54
 pytorch==1.8.1
