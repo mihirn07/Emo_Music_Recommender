@@ -6,7 +6,6 @@ import os
 import torch
 import cv2
 import random
-import time
 
 
 path = 'saved_weights_emotions.pt'
@@ -58,11 +57,6 @@ for params in model.parameters():
   	params.requires_grad = False
 
 nav = st.sidebar.radio('Navigation', ['Home', 'Recommender', 'Music List', 'About Me'])
-
-def countdown(t):
-    while t:
-        time.sleep(1)
-        t -= 1
 
 if nav =='Home':
 	st.title('Emotion Based Music Recommender')
