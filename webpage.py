@@ -85,7 +85,7 @@ if nav =='Recommender':
 
 
 			if __name__ == '__main__':
-		        		folder_path = '.\sample_img'
+		        		folder_path = 'sample_img'
 		        		file = file_selector(folder_path=folder_path)
 		        		st.write('You selected `%s`' % file)
 	# Load the cascade
